@@ -7,6 +7,25 @@ from pykumo.py_kumo import PyKumo
 import toml
 
 
+MODE_LABELS = {
+    'off': 'off',
+    'auto': 'auto',
+    'dry': 'dry',
+    'heat': 'heat',
+    'cool': 'cool',
+    'vent': 'fan',
+}
+
+
+def _c_to_f(temp_c):
+    return temp_c * 9 / 5 + 32
+
+
+def format_temp(temp_c):
+    temp_f = _c_to_f(temp_c)
+    return f"{temp_f}\u00BAF"
+
+
 def _b64_encode_credentials(creds):
     """Formats given credentials in a way that works for local communication."""
     return {
@@ -66,7 +85,8 @@ def unit_summary(unit):
 
     profile = udict['_profile']
     status = udict['_status']
-    has_mode = {
+    modes = {
+        'off': True,
         'auto': profile['hasModeAuto'],
         'dry': profile['hasModeDry'],
         'heat': profile['hasModeHeat'],
@@ -92,10 +112,29 @@ def unit_summary(unit):
             f"Humidity:     {humidity}"
         ]
 
+    mode = status['mode']
     lines += [
-        f"Temperature:  {status['roomTemp']}C (TODO: convert to F)",
-        f"Mode:         {status['mode']}",
+        f"Temperature:  {format_temp(status['roomTemp'])}",
+        f"Mode:         {MODE_LABELS[mode]}",
         f"Fan speed:    {status['fanSpeed']}",
+    ]
+
+    set_point = None
+    if mode == 'cool':
+        set_point = status['spCool']
+        lines += [
+            f"Target:       <={format_temp(set_point)}",
+        ]
+
+    if mode == 'heat':
+        set_point = status['spHeat']
+        lines += [
+            f"Target:       >={format_temp(set_point)}",
+        ]
+
+    lines += [
+        "",
+        f"Valid modes:  {', '.join(mode for mode in modes if mode)}",
     ]
 
     return '\n    '.join(lines)
