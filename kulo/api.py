@@ -48,7 +48,7 @@ def unit_config(unit):
     }
 
 
-def generate_config():
+def login():
     account = pykumo.KumoCloudAccount.Factory()
     account.get_indoor_units()
 
@@ -87,23 +87,32 @@ def unit_summary(unit):
     status = udict['_status']
     modes = {
         'off': True,
-        'auto': profile['hasModeAuto'],
-        'dry': profile['hasModeDry'],
-        'heat': profile['hasModeHeat'],
+        'auto': unit.has_auto_mode(),
+        'dry': unit.has_dry_mode(),
+        'heat': unit.has_heat_mode(),
         'cool': True,
-        'fan': profile['hasModeVent']
+        'vent': unit.has_vent_mode(),
     }
-    num_fan_speeds = profile['numberOfFanSpeeds']
+
+    valid_fan_speeds = unit.get_fan_speeds()
+    current_fan_speed = unit.get_fan_speed()
+
+    fan_speed_number = valid_fan_speeds.index(current_fan_speed)
+    # the -1 is to account for `auto`, which isn't really a speed.
+    num_fan_speeds = len(valid_fan_speeds) - 1
 
     lines = [
         udict['_name'],
     ]
 
-    if status['defrost']:
+    if unit.get_defrost():
         lines += ["UNIT IS DEFROSTING"]
 
     if status['standby']:
         lines += ["UNIT IS IN STANDBY"]
+
+    if unit.get_filter_dirty():
+        lines += ["Filter needs to be cleaned."]
 
 
     humidity = udict.get('_mhk2', {}).get('indoorHumidity', None)
@@ -114,9 +123,9 @@ def unit_summary(unit):
 
     mode = status['mode']
     lines += [
-        f"Temperature:  {format_temp(status['roomTemp'])}",
+        f"Temperature:  {format_temp(unit.get_current_temperature())}",
         f"Mode:         {MODE_LABELS[mode]}",
-        f"Fan speed:    {status['fanSpeed']}",
+        f"Fan speed:    {current_fan_speed} ({fan_speed_number}/{num_fan_speeds})",
     ]
 
     set_point = None
@@ -134,7 +143,8 @@ def unit_summary(unit):
 
     lines += [
         "",
-        f"Valid modes:  {', '.join(mode for mode in modes if mode)}",
+        f"Valid modes:      {', '.join(mode for mode in modes if mode)}",
+        f"Valid fan speeds: {', '.join(valid_fan_speeds)}",
     ]
 
     return '\n    '.join(lines)

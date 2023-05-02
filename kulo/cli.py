@@ -4,7 +4,7 @@
 kulo help
     Print this help text.
 
-kulo generate-config
+kulo login
     Generate `kulo.toml`.
 
 kulo status
@@ -23,8 +23,8 @@ def _has_config():
     return Path(CONFIG_FILE).exists()
 
 
-def cmd_generate_config():
-    Path(CONFIG_FILE).write_text(toml.dumps(api.generate_config()), encoding="utf-8")
+def cmd_login():
+    Path(CONFIG_FILE).write_text(toml.dumps(api.login()), encoding="utf-8")
     print(f"Saved config file: {CONFIG_FILE}")
 
 def cmd_help():
@@ -39,7 +39,7 @@ def cmd_status():
 
 COMMANDS = {
     'help': cmd_help,
-    'generate-config': cmd_generate_config,
+    'login': cmd_login,
     'status': cmd_status,
 }
 DEFAULT_COMMAND = 'status'
