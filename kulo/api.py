@@ -81,10 +81,7 @@ def units_from_config(cfg):
 
 def unit_summary(unit):
     unit.update_status()
-    udict = unit.__dict__
 
-    profile = udict['_profile']
-    status = udict['_status']
     modes = {
         'off': True,
         'auto': unit.has_auto_mode(),
@@ -102,26 +99,26 @@ def unit_summary(unit):
     num_fan_speeds = len(valid_fan_speeds) - 1
 
     lines = [
-        udict['_name'],
+        unit.get_name(),
     ]
 
     if unit.get_defrost():
         lines += ["UNIT IS DEFROSTING"]
 
-    if status['standby']:
+    if unit.get_standby():
         lines += ["UNIT IS IN STANDBY"]
 
     if unit.get_filter_dirty():
         lines += ["Filter needs to be cleaned."]
 
 
-    humidity = udict.get('_mhk2', {}).get('indoorHumidity', None)
+    humidity = unit.get_current_humidity()
     if humidity:
         lines += [
-            f"Humidity:     {humidity}"
+            f"Humidity:     {humidity}%"
         ]
 
-    mode = status['mode']
+    mode = unit.get_mode()
     lines += [
         f"Temperature:  {format_temp(unit.get_current_temperature())}",
         f"Mode:         {MODE_LABELS[mode]}",
@@ -130,13 +127,13 @@ def unit_summary(unit):
 
     set_point = None
     if mode == 'cool':
-        set_point = status['spCool']
+        set_point = unit.get_cool_setpoint()
         lines += [
             f"Target:       <={format_temp(set_point)}",
         ]
 
     if mode == 'heat':
-        set_point = status['spHeat']
+        set_point = unit.get_heat_setpoint()
         lines += [
             f"Target:       >={format_temp(set_point)}",
         ]
