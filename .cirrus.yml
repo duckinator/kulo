@@ -1,0 +1,66 @@
+# Allow compute credits usage for collaborators and anything pushed to the
+# main, staging, and trying branches. (So bors can use them.)
+use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
+
+Lint_task:
+  container:
+    image: python:3.10-slim
+  install_script:
+    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
+    - pip install .
+    - pip install .[testing]
+  script:
+    - pylint --version
+    - bork run lint
+
+
+Linux_task:
+  alias: Linux tests
+  container:
+    matrix:
+      - image: python:3.8-slim
+      - image: python:3.9-slim
+      - image: python:3.10-slim
+      - image: python:3.11-slim
+  install_script:
+    - apt-get update
+    - apt-get install -y git
+    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
+    - pip install . .[testing]
+  script:
+    - python3 --version
+    - bork run test
+
+
+success_task:
+  name: CI success
+  container: {image: "busybox"}
+  depends_on:
+    #- FreeBSD tests
+    - Linux tests
+    #- macOS tests
+    #- Windows tests
+    - Lint
+
+# If kulo/version.py is modified on the main branch, make a release.
+#Release_task:
+#  only_if: "changesInclude('kulo/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
+#  depends_on: [CI success]
+#  env:
+#    TWINE_USERNAME: "__token__"
+#    TWINE_PASSWORD: ...
+#    BORK_GITHUB_TOKEN: ...
+#  container:
+#    image: python:3.10-slim
+#  install_script:
+#    - apt-get update
+#    - apt-get install -y git
+#    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
+#    - pip3 install . .[testing]
+#  build_script:
+#    - bork clean
+#    - bork build
+#  test_script:
+#    - bork run test
+#  release_script:
+#    - bork release

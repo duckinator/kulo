@@ -1,0 +1,11 @@
+/.eggs/
+/.mypy_cache/
+/.pytest_cache/
+/.tox/
+/build/
+/dist/
+/*.egg-info/
+/venv
+__pycache__
+kulo.toml
+/test_*.py
