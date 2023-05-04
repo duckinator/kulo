@@ -12,9 +12,7 @@ kulo
     Interactive control of the devices specified in `kulo.toml`.
 """
 
-from pathlib import Path
 import sys
-import toml
 from . import api
 
 CONFIG_FILE = 'kulo.toml'
