@@ -19,22 +19,25 @@ from . import api
 
 CONFIG_FILE = 'kulo.toml'
 
-def _has_config():
-    return Path(CONFIG_FILE).exists()
-
-
 def cmd_login():
-    Path(CONFIG_FILE).write_text(toml.dumps(api.login()), encoding="utf-8")
+    api.Kulo(CONFIG_FILE).login()
     print(f"Saved config file: {CONFIG_FILE}")
+
 
 def cmd_help():
     sys.exit(__doc__)
 
+
 def cmd_status():
-    if not _has_config():
+    if not api.Kulo(CONFIG_FILE).has_config():
         sys.exit(f"ERROR: Config file {CONFIG_FILE} does not exist; see `kulo help` for how to generate it.")
 
-    print(api.system_status(CONFIG_FILE))
+    print(api.Kulo(CONFIG_FILE).system_status())
+
+
+def cmd_mode(mode=None):
+    #if mode:
+    raise NotImplementedError
 
 
 COMMANDS = {
