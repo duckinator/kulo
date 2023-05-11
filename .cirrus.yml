@@ -2,13 +2,17 @@
 # main, staging, and trying branches. (So bors can use them.)
 use_compute_credits: $CIRRUS_USER_COLLABORATOR == 'true' || $CIRRUS_BRANCH == 'main' || $CIRRUS_BRANCH == 'staging' || $CIRRUS_BRANCH == 'trying'
 
+# Kludge for https://github.com/duckinator/bork/issues/205
+env:
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+
 Lint_task:
   container:
     image: python:3.10-slim
   install_script:
     - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-    - pip install .
-    - pip install .[testing]
+    - pip install bork . .[testing]
   script:
     - pylint --version
     - bork run lint
@@ -26,7 +30,7 @@ Linux_task:
     - apt-get update
     - apt-get install -y git
     - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-    - pip install . .[testing]
+    - pip install bork . .[testing]
   script:
     - python3 --version
     - bork run test
@@ -56,7 +60,7 @@ success_task:
 #    - apt-get update
 #    - apt-get install -y git
 #    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-#    - pip3 install . .[testing]
+#    - pip3 install bork . .[testing]
 #  build_script:
 #    - bork clean
 #    - bork build
