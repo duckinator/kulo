@@ -48,6 +48,7 @@ def cmd_mode(unit, mode=None):
 
     if not mode:
         print(kulo.get_mode(unit))
+        return
 
     (old_mode, new_mode) = kulo.set_mode(unit, mode)
     print(f"{unit}: Mode changed from {old_mode} to {new_mode}")
