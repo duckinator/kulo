@@ -10,6 +10,12 @@ kulo login
 kulo status
 kulo
     Interactive control of the devices specified in `kulo.toml`.
+
+kulo mode UNIT
+    Prints the mode that the specified unit is in.
+
+kulo mode UNIT MODE
+    Changes the specified unit's mode.
 """
 
 import sys
