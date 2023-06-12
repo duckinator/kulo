@@ -8,6 +8,11 @@ from pykumo.py_kumo import PyKumo
 import toml
 
 
+class KuloException(Exception):
+    """Exceptions raised by an kulo.api.Kulo instance."""
+    pass
+
+
 class Kulo:
     """
     API client for interacting with Kumo Cloud mostly-locally.
@@ -20,16 +25,15 @@ class Kulo:
 
     print(kulo.summary_all_units())
     ```
-    """
-    MODE_LABELS = {
-        'off': 'off',
-        'auto': 'auto',
-        'dry': 'dry',
-        'heat': 'heat',
-        'cool': 'cool',
-        'vent': 'fan',
-    }
 
+    Known modes are:
+    - off
+    - auto
+    - dry
+    - heat
+    - cool
+    - vent
+    """
 
     def __init__(self, config_file):
         self.config_file = Path(config_file)
@@ -157,7 +161,7 @@ class Kulo:
         mode = unit.get_mode()
         lines += [
             f"Temperature:  {self.format_temp(unit.get_current_temperature())}",
-            f"Mode:         {self.MODE_LABELS[mode]}",
+            f"Mode:         {mode}",
             f"Fan speed:    {current_fan_speed} ({fan_speed_number}/{num_fan_speeds})",
         ]
 
@@ -191,12 +195,59 @@ class Kulo:
         return self.summary_all_units()
 
 
-    def get_mode(self, name):
-        raise NotImplementedError
+    def get_unit(self, unit_name):
+        if unit_name not in self.config:
+            raise KuloException(f"No such unit {unit_name}; valid options are {', '.join(self.config.keys())}")
+
+        unit = self.config[unit_name]
+        unit.update_status()
+        return unit
 
 
-    def set_mode(self, name, mode):
-        raise NotImplementedError
+    def get_unit_modes(self, unit):
+        if unit is str:
+            unit = self.get_unit(unit)
+
+        modes = {
+            'off': True,
+            'auto': unit.has_auto_mode(),
+            'dry': unit.has_dry_mode(),
+            'heat': unit.has_heat_mode(),
+            'cool': True,
+            'vent': unit.has_vent_mode(),
+        }
+        return [mode for mode in modes if mode]
+
+
+    def get_mode(self, unit_name):
+        return self.get_unit(unit_name).get_mode()
+
+
+    def set_mode(self, unit_name, mode):
+        """
+        Set the mode for the designated unit.
+
+        If this function returns, it successfully updated the mode.
+
+        Returns a tuple of +(old_mode, new_mode)+.
+        """
+        unit = self.get_unit(unit_name)
+
+        valid_modes = self.get_unit_modes(unit)
+        if mode not in valid_modes:
+            raise KuloException(f"Unsupported mode {repr(mode)} for {repr(unit_name)}.\n\nValid modes are: {', '.join(valid_modes)}")
+
+        old_mode = unit.get_mode()
+
+        unit.set_mode(mode)
+
+        unit.update_status()
+        new_mode = unit.get_mode()
+
+        if new_mode != mode:
+            raise KuloException(f"Failed to set mode to {mode}. (It's still {new_mode}.)")
+
+        return (old_mode, new_mode)
 
 
     def get_setpoint(self, name):
