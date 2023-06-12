@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+"""\
 kulo help
     Print this help text.
 
