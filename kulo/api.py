@@ -134,7 +134,8 @@ class Kulo:
         valid_fan_speeds = unit.get_fan_speeds()
         current_fan_speed = unit.get_fan_speed()
 
-        fan_speed_number = valid_fan_speeds.index(current_fan_speed)
+        # the +1 is to account for zero-indexing.
+        fan_speed_number = valid_fan_speeds.index(current_fan_speed) + 1
         # the -1 is to account for `auto`, which isn't really a speed.
         num_fan_speeds = len(valid_fan_speeds) - 1
 
