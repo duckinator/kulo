@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 main = "kulo.cli:zipapp_main"
 
 [tool.bork.release]
-pypi = false
+pypi = true
 github = false
 github_repository = "duckinator/kulo"
 strip_zipapp_version = true
