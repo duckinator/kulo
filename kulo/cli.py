@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
 """\
+kulo
+    Prints a summary of the status of all units.
+    (Shortcut for `kulo status` with no arguments.)
+
 kulo help
     Print this help text.
 
 kulo login
     Generate `kulo.toml`.
 
-kulo status
-kulo
-    Interactive control of the devices specified in `kulo.toml`.
+kulo status [UNIT]
+    If UNIT is specified: prints a summary of the status of UNIT.
+    Otherwise: prints a summary of the status of all units.
 
 kulo mode UNIT
     Prints the mode that the specified unit is in.
@@ -49,9 +53,14 @@ def cmd_help():
     sys.exit(__doc__)
 
 
-def cmd_status():
+def cmd_status(unit_name=None):
     _ensure_config_file_exists()
-    print(api.Kulo().system_status())
+    kulo = api.Kulo()
+    if unit_name:
+        unit = kulo.get_unit(unit_name)
+        print(kulo.unit_summary(unit))
+    else:
+        print(kulo.system_status())
 
 
 def cmd_mode(unit, mode=None):
