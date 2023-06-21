@@ -7,6 +7,12 @@ import pykumo
 from pykumo.py_kumo import PyKumo
 import toml
 
+CONFIG_FILE_NAME = 'kulo.toml'
+
+CONFIG_PATH = Path.home() / '.config' / 'kulo'
+
+CONFIG_FILE = CONFIG_PATH / CONFIG_FILE_NAME
+
 
 class KuloException(Exception):
     """Exceptions raised by an kulo.api.Kulo instance."""
@@ -19,7 +25,7 @@ class Kulo:
 
     ```
     from kulo.api import Kulo
-    kulo = Kulo(config_file)
+    kulo = Kulo()
     if not kulo.has_config():
         kulo.login()
 
@@ -35,17 +41,15 @@ class Kulo:
     - vent
     """
 
-    def __init__(self, config_file):
-        self.config_file = Path(config_file)
+    def __init__(self):
+        self.config_file = Path(CONFIG_FILE)
         if self.has_config():
             self.config = self.load_config()
         else:
             self.config = None
 
     def has_config(self):
-        if self.config_file.exists():
-            return True
-        return False
+        return self.config_file.exists()
 
     def load_config(self):
         config = toml.loads(self.config_file.read_text(encoding="utf-8"))
@@ -59,6 +63,7 @@ class Kulo:
 
     @staticmethod
     def _c_to_f(temp_c):
+        """Convert a temperature from Celsius to Fahrenheit."""
         return temp_c * 9 / 5 + 32
 
 
@@ -93,6 +98,13 @@ class Kulo:
 
 
     def login(self):
+        """
+        Log in to Kumo Cloud, fetch the information required to control
+        devices locally, and save that information to the file.
+
+        User account information is NEVER saved.
+        """
+
         account = pykumo.KumoCloudAccount.Factory()
         account.get_indoor_units()
 
@@ -107,7 +119,13 @@ class Kulo:
                 'credentials': unit.__dict__['_security'],
             }
 
+        # Create directory the config file goes in.
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save the config file.
         self.config_file.write_text(toml.dumps(units), encoding="utf-8")
+
+        # Load the config so we can use it immediately.
         self.load_config()
 
 

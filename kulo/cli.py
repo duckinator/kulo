@@ -21,16 +21,14 @@ kulo mode UNIT MODE
 import sys
 from . import api
 
-CONFIG_FILE = 'kulo.toml'
-
 def _ensure_config_file_exists():
-    if not api.Kulo(CONFIG_FILE).has_config():
-        sys.exit(f"ERROR: Config file {CONFIG_FILE} does not exist; see `kulo help` for how to generate it.")
+    if not api.Kulo().has_config():
+        sys.exit(f"ERROR: Config file {api.CONFIG_FILE} does not exist; see `kulo help` for how to generate it.")
 
 
 def cmd_login():
-    api.Kulo(CONFIG_FILE).login()
-    print(f"Saved config file: {CONFIG_FILE}")
+    api.Kulo().login()
+    print(f"Saved config file: {api.CONFIG_FILE}")
 
 
 def cmd_help():
@@ -39,12 +37,12 @@ def cmd_help():
 
 def cmd_status():
     _ensure_config_file_exists()
-    print(api.Kulo(CONFIG_FILE).system_status())
+    print(api.Kulo().system_status())
 
 
 def cmd_mode(unit, mode=None):
     _ensure_config_file_exists()
-    kulo = api.Kulo(CONFIG_FILE)
+    kulo = api.Kulo()
 
     if not mode:
         print(kulo.get_mode(unit))
