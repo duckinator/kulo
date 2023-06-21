@@ -67,6 +67,12 @@ class Kulo:
         return temp_c * 9 / 5 + 32
 
 
+    @staticmethod
+    def _f_to_c(temp_f):
+        """Convert a temperature from Celsius to Fahrenheit."""
+        return temp_f - 32 * 5 / 9
+
+
     def format_temp(self, temp_c):
         temp_f = self._c_to_f(temp_c)
         return f"{temp_f}\u00BAF"
@@ -273,8 +279,59 @@ class Kulo:
         return (old_mode, new_mode)
 
 
-    def get_setpoint(self, name):
-        raise NotImplementedError
+    def get_cool_setpoint(self, unit_name):
+        return self.format_temp(self.get_unit(unit_name).get_cool_setpoint())
 
-    def set_setpoint(self, name, setpoint):
-        raise NotImplementedError
+
+    def set_cool_setpoint(self, unit_name, setpoint_f):
+        """
+        set the set-point/target for cooling.
+
+        if this function returns, it successfully updated the set-point.
+
+        returns a tuple of +(old_setpoint, new_setpoint)+.
+        """
+        unit = self.get_unit(unit_name)
+
+        setpoint_c = self._f_to_c(setpoint_f)
+
+        old_setpoint = unit.get_cool_setpoint()
+
+        unit.set_cool_setpoint(setpoint_c)
+
+        unit.update_status()
+        new_setpoint = unit.get_cool_setpoint()
+
+        if new_setpoint != setpoint:
+            raise kuloexception(f"failed to change cooling setpoint to {setpoint}C. (It's still {new_setpoint}C.)")
+
+        return (self.format_temp(old_setpoint), self.format_temp(new_setpoint))
+
+
+    def get_heat_setpoint(self, unit_name):
+        return self.format_temp(self.get_unit(unit_name).get_heat_setpoint())
+
+
+    def set_heat_setpoint(self, unit_name, setpoint_f):
+        """
+        set the set-point/target for heating.
+
+        if this function returns, it successfully updated the set-point.
+
+        returns a tuple of +(old_setpoint, new_setpoint)+.
+        """
+        unit = self.get_unit(unit_name)
+
+        setpoint_c = self._f_to_c(setpoint_f)
+
+        old_setpoint = unit.get_heat_setpoint()
+
+        unit.set_heat_setpoint(setpoint_c)
+
+        unit.update_status()
+        new_setpoint = unit.get_heat_setpoint()
+
+        if new_setpoint != setpoint:
+            raise kuloexception(f"failed to change heating setpoint to {setpoint}C. (It's still {new_setpoint}C.)")
+
+        return (self.format_temp(old_setpoint), self.format_temp(new_setpoint))
