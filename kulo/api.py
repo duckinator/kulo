@@ -181,8 +181,12 @@ class Kulo:
         lines += [
             f"Temperature:  {self.format_temp(unit.get_current_temperature())}",
             f"Mode:         {mode}",
-            f"Fan speed:    {current_fan_speed} ({fan_speed_number}/{num_fan_speeds})",
         ]
+
+        fan_speed = f"Fan speed:    {current_fan_speed}"
+        if current_fan_speed != 'auto':
+            fan_speed += f" ({fan_speed_number}/{num_fan_speeds})"
+        lines += [fan_speed]
 
         set_point = None
         if mode == 'cool':
