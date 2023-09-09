@@ -3,6 +3,16 @@
 requires = ["setuptools > 42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.reports]
+# Available formats are text, parseable, colorized, json, msvs.
+output-format = "colorized"
+
+# Tells whether to display a full report or only the messages.
+# reports =
+
 #[tool.bork]
 #project_name = "kulo"
 
