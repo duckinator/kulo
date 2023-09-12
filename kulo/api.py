@@ -322,7 +322,7 @@ class Kulo:
         """
         unit = self.get_unit(unit_name)
 
-        setpoint_c = self._f_to_c(setpoint_f)
+        setpoint_c = self._f_to_c(int(setpoint_f))
 
         old_setpoint = unit.get_cool_setpoint()
 
@@ -331,8 +331,11 @@ class Kulo:
         unit.update_status()
         new_setpoint = unit.get_cool_setpoint()
 
-        if new_setpoint != old_setpoint:
-            raise KuloException(f"failed to change cooling setpoint to {old_setpoint}C. (It's still {new_setpoint}C.)")
+        if setpoint_c != new_setpoint:
+            raise KuloException(
+                f"failed to change cooling setpoint from {old_setpoint}C to {setpoint_c}C.\n"
+                f"It's currently set to {new_setpoint}C."
+            )
 
         return (self.format_temp(old_setpoint), self.format_temp(new_setpoint))
 
@@ -354,7 +357,7 @@ class Kulo:
         """
         unit = self.get_unit(unit_name)
 
-        setpoint_c = self._f_to_c(setpoint_f)
+        setpoint_c = self._f_to_c(int(setpoint_f))
 
         old_setpoint = unit.get_heat_setpoint()
 
