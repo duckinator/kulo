@@ -3,15 +3,18 @@
 requires = ["setuptools > 42", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.ruff]
+line-length = 120  # Same as tool.pylint.format.max-line-length below.
+
 [tool.pylint.format]
-max-line-length = 120
+max-line-length = 120  # Same as tool.ruff.line-length above
 
 [tool.pylint.reports]
 # Available formats are text, parseable, colorized, json, msvs.
 output-format = "colorized"
 
-# Tells whether to display a full report or only the messages.
-# reports =
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["missing-module-docstring", "unnecessary-pass"]
 
 #[tool.bork]
 #project_name = "kulo"

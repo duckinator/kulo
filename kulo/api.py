@@ -29,7 +29,7 @@ class Kulo:
     if not kulo.has_config():
         kulo.login()
 
-    print(kulo.summary_all_units())
+    print(kulo.system_status())
     ```
 
     Known modes are:
@@ -49,9 +49,15 @@ class Kulo:
             self.config = None
 
     def has_config(self):
+        """Returns True if the config file exists; otherwise, returns False."""
         return self.config_file.exists()
 
     def load_config(self):
+        """
+        Load the TOML config file.
+
+        Returns a dict mapping unit names to +PyKumo+ instances.
+        """
         config = toml.loads(self.config_file.read_text(encoding="utf-8"))
 
         return {
@@ -74,6 +80,7 @@ class Kulo:
 
 
     def format_temp(self, temp_c):
+        """Pretty-print +temp_c+ (temperature in Celsius), in Fahrenheit."""
         temp_f = self._c_to_f(temp_c)
         return f"{temp_f}\u00BAF"
 
@@ -96,6 +103,7 @@ class Kulo:
 
     @staticmethod
     def unit_config(unit):
+        """Given a +unit+, return a simplified dict representing the configuration for it."""
         return {
             'name': unit['_name'],
             'ip': unit['_address'],
@@ -116,8 +124,7 @@ class Kulo:
 
         pykumo_units = account.make_pykumos()
         units = {}
-        for name in pykumo_units:
-            unit = pykumo_units[name]
+        for name, unit in pykumo_units.items():
             unit.update_status()
             units[name] = {
                 'name': unit.get_name(),
@@ -135,15 +142,21 @@ class Kulo:
         self.load_config()
 
 
-    def _unit_from_unit_config(self, ucfg):
-        return PyKumo(ucfg['name'], ucfg['ip'], self._b64_encode_credentials(ucfg['credentials']), None, None)
+#    def _unit_from_unit_config(self, ucfg):
+#        return PyKumo(ucfg['name'], ucfg['ip'], self._b64_encode_credentials(ucfg['credentials']), None, None)
 
 
-    def units_from_config(self, cfg):
-        return map(self._unit_from_unit_config, cfg.values())
+#    def units_from_config(self, cfg):
+#        return map(self._unit_from_unit_config, cfg.values())
 
 
     def unit_summary(self, unit):
+        """
+        Returns a summary for the specified +unit+.
+        """
+        if isinstance(unit, str):
+            unit = self.get_unit(unit)
+
         unit.update_status()
 
         modes = {
@@ -216,15 +229,17 @@ class Kulo:
         return '\n    '.join(lines)
 
 
-    def summary_all_units(self):
+    def system_status(self):
+        """
+        Returns a summary of the state of all units.
+        """
         return "\n\n".join(self.unit_summary(unit) for unit in self.config.values())
 
 
-    def system_status(self):
-        return self.summary_all_units()
-
-
     def get_unit(self, unit_name):
+        """
+        Given a +unit_name+, returns the actual unit.
+        """
         if unit_name not in self.config:
             raise KuloException(f"No such unit {unit_name}; valid options are {', '.join(self.config.keys())}")
 
@@ -234,7 +249,13 @@ class Kulo:
 
 
     def get_unit_modes(self, unit):
-        if unit is str:
+        """
+        Returns a list of modes that +unit+ supports.
+
+        +unit+ can either be a string (the name of the unit) or an actual
+        unit (as is provided in +self.config+).
+        """
+        if isinstance(unit, str):
             unit = self.get_unit(unit)
 
         modes = {
@@ -249,6 +270,9 @@ class Kulo:
 
 
     def get_mode(self, unit_name):
+        """
+        Returns the mode +unit_name+ is currently configured for.
+        """
         return self.get_unit(unit_name).get_mode()
 
 
@@ -280,6 +304,9 @@ class Kulo:
 
 
     def get_cool_setpoint(self, unit_name):
+        """
+        Returns +unit_name+'s set-point/target for heating.
+        """
         return self.format_temp(self.get_unit(unit_name).get_cool_setpoint())
 
 
@@ -302,13 +329,16 @@ class Kulo:
         unit.update_status()
         new_setpoint = unit.get_cool_setpoint()
 
-        if new_setpoint != setpoint:
-            raise kuloexception(f"failed to change cooling setpoint to {setpoint}C. (It's still {new_setpoint}C.)")
+        if new_setpoint != old_setpoint:
+            raise KuloException(f"failed to change cooling setpoint to {old_setpoint}C. (It's still {new_setpoint}C.)")
 
         return (self.format_temp(old_setpoint), self.format_temp(new_setpoint))
 
 
     def get_heat_setpoint(self, unit_name):
+        """
+        Returns +unit_name+'s set-point/target for heating.
+        """
         return self.format_temp(self.get_unit(unit_name).get_heat_setpoint())
 
 
@@ -331,7 +361,7 @@ class Kulo:
         unit.update_status()
         new_setpoint = unit.get_heat_setpoint()
 
-        if new_setpoint != setpoint:
-            raise kuloexception(f"failed to change heating setpoint to {setpoint}C. (It's still {new_setpoint}C.)")
+        if new_setpoint != old_setpoint:
+            raise KuloException(f"failed to change heating setpoint to {old_setpoint}C. (It's still {new_setpoint}C.)")
 
         return (self.format_temp(old_setpoint), self.format_temp(new_setpoint))

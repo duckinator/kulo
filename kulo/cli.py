@@ -39,6 +39,8 @@ kulo target UNIT [TEMP]
 import sys
 from . import api
 
+# pylint: disable=missing-function-docstring
+
 def _ensure_config_file_exists():
     if not api.Kulo().has_config():
         sys.exit(f"ERROR: Config file {api.CONFIG_FILE} does not exist; see `kulo help` for how to generate it.")
@@ -83,7 +85,7 @@ def cmd_cooling_target(unit, setpoint=None):
         print(kulo.get_cool_setpoint(unit))
         return
 
-    (old_setpoint, new_setpoint, mode) = kulo.set_cool_setpoint(unit, setpoint)
+    (old_setpoint, new_setpoint) = kulo.set_cool_setpoint(unit, setpoint)
     print(f"{unit}: Target temperature for cooling changed from {old_setpoint} to {new_setpoint}.")
 
 
@@ -95,20 +97,21 @@ def cmd_heating_target(unit, setpoint=None):
         print(kulo.get_heat_setpoint(unit))
         return
 
-    (old_setpoint, new_setpoint, mode) = kulo.set_setpoint(unit, setpoint)
+    (old_setpoint, new_setpoint) = kulo.set_heat_setpoint(unit, setpoint)
     print(f"{unit}: Target temperature for heating changed from {old_setpoint} to {new_setpoint}.")
 
 
 def cmd_target(unit, setpoint=None):
     _ensure_config_file_exists()
-    mode = api.Kulo().get_mode()
+    mode = api.Kulo().get_mode(unit)
 
     if mode == 'cool':
         return cmd_cooling_target(unit, setpoint)
-    elif mode == 'heat':
+
+    if mode == 'heat':
         return cmd_heating_target(unit, setpoint)
-    else:
-        raise KuloException(f"{unit}: Not currently in 'cool' or 'heat' modes; please use `kulo cooling-target` or `kulo heating-target` commands.")
+
+    raise api.KuloException(f"{unit}: Not currently in 'cool' or 'heat' modes; please use `kulo cooling-target` or `kulo heating-target` commands.")
 
 
 COMMANDS = {
@@ -125,7 +128,15 @@ COMMANDS = {
 DEFAULT_COMMAND = 'status'
 
 
-def main(argv=sys.argv):
+def main(argv=None):
+    """Command-line entrypoint for Kulo.
+
+    If argv is None or not specified, it defaults to sys.argv.
+    """
+
+    if argv is None:
+        argv = sys.argv
+
     if any(arg in argv for arg in ['--help', '-h', 'help']):
         cmd_help()
 
@@ -139,5 +150,5 @@ def main(argv=sys.argv):
 
     try:
         COMMANDS[command](*args)
-    except api.KuloException as e:
-        sys.exit(f"kulo: error: {str(e)}")
+    except api.KuloException as err:
+        sys.exit(f"kulo: error: {str(err)}")
