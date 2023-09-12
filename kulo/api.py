@@ -288,7 +288,9 @@ class Kulo:
 
         valid_modes = self.get_unit_modes(unit)
         if mode not in valid_modes:
-            raise KuloException(f"Unsupported mode {repr(mode)} for {repr(unit_name)}.\n\nValid modes are: {', '.join(valid_modes)}")
+            raise KuloException(
+                f"Unsupported mode {repr(mode)} for {repr(unit_name)}.\n\nValid modes are: {', '.join(valid_modes)}"
+            )
 
         old_mode = unit.get_mode()
 

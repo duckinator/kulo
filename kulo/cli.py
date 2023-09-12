@@ -111,7 +111,12 @@ def cmd_target(unit, setpoint=None):
     if mode == 'heat':
         return cmd_heating_target(unit, setpoint)
 
-    raise api.KuloException(f"{unit}: Not currently in 'cool' or 'heat' modes; please use `kulo cooling-target` or `kulo heating-target` commands.")
+    raise api.KuloException(
+        f"{unit}: Not currently in 'cool' or 'heat' modes.\n\n"
+        "Please do one of the following:\n"
+        "1. swtch to 'cool' or 'heat' (using the `kulo mode` command), or\n"
+        "2. use `kulo cooling-target` or `kulo heating-target` commands."
+    )
 
 
 COMMANDS = {
