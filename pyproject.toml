@@ -1,7 +1,55 @@
 [build-system]
 # Specify the required build system.
-requires = ["setuptools > 42", "wheel"]
+requires = ["setuptools > 61", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "kulo"
+dynamic = ["version"]
+authors = [
+    {name = "Ellen Marie Dash", email = "me@duckie.co"},
+]
+description = "A tool for managing (Kumo Cloud-managed) Mitsubishi Heat Pump systems (mostly?) locally"
+readme = "README.md"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "pykumo==0.3.5",
+    "toml==0.10.2",
+    "requests", # Workaround for https://github.com/dlarrick/pykumo/issues/43
+]
+
+requires-python = ">= 3.8"
+
+[project.scripts]
+kulo = "kulo.cli:main"
+
+[project.optional-dependencies]
+testing_only = [
+    "pytest==7.2.0",
+]
+
+testing = [
+    "pylint==2.17.5",
+    "pytest==7.2.0",
+    "pytest-pylint==0.19.0",
+    "pytest-mypy==0.10.3",
+]
+
+[tool.setuptools]
+packages = ["kulo"]
+
+[tool.setuptools.dynamic]
+version = {attr = "kulo.__version__"}
 
 [tool.ruff]
 line-length = 120  # Same as tool.pylint.format.max-line-length below.
@@ -15,9 +63,6 @@ output-format = "colorized"
 
 [tool.pylint."MESSAGES CONTROL"]
 disable = ["missing-module-docstring", "unnecessary-pass"]
-
-#[tool.bork]
-#project_name = "kulo"
 
 [tool.bork.zipapp]
 #enabled = true
