@@ -12,7 +12,7 @@ Lint_task:
     image: python:3.10-slim
   install_script:
     - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-    - pip install bork . .[testing]
+    - pip install bork . .[test]
   script:
     - pylint --version
     - bork run lint
@@ -30,7 +30,7 @@ Linux_task:
     - apt-get update
     - apt-get install -y git
     - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-    - pip install bork . .[testing]
+    - pip install bork . .[test]
   script:
     - python3 --version
     - bork run test
@@ -60,7 +60,7 @@ success_task:
 #    - apt-get update
 #    - apt-get install -y git
 #    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-#    - pip3 install bork . .[testing]
+#    - pip3 install bork . .[test]
 #  build_script:
 #    - bork clean
 #    - bork build
