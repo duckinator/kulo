@@ -54,6 +54,9 @@ version = {attr = "kulo.__version__"}
 [tool.ruff]
 line-length = 120  # Same as tool.pylint.format.max-line-length below.
 
+[tool.pylint.MASTER]
+ignore-paths = ["^tests/.*$"]
+
 [tool.pylint.format]
 max-line-length = 120  # Same as tool.ruff.line-length above
 
