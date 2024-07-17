@@ -23,9 +23,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "pykumo==0.3.5",
+    "pykumo==0.3.9",
     "toml==0.10.2",
-    "requests", # Workaround for https://github.com/dlarrick/pykumo/issues/43
 ]
 
 requires-python = ">= 3.8"
@@ -35,9 +34,7 @@ kulo = "kulo.cli:main"
 
 [project.optional-dependencies]
 test = [
-    "pylint==3.0.2",
     "pytest==7.4.3",
-    "pytest-pylint==0.21.0",
 ]
 
 [tool.setuptools]
@@ -47,24 +44,7 @@ packages = ["kulo"]
 version = {attr = "kulo.__version__"}
 
 [tool.ruff]
-line-length = 120  # Same as tool.pylint.format.max-line-length below.
-
-[tool.pylint.MASTER]
-ignore-paths = ["^tests/.*$"]
-
-[tool.pylint.format]
-max-line-length = 120  # Same as tool.ruff.line-length above
-
-[tool.pylint.reports]
-# Available formats are text, parseable, colorized, json, msvs.
-output-format = "colorized"
-
-[tool.pylint."MESSAGES CONTROL"]
-disable = ["missing-module-docstring", "unnecessary-pass"]
-
-[tool.bork.zipapp]
-#enabled = true
-main = "kulo.cli:zipapp_main"
+line-length = 120
 
 [tool.bork.release]
 pypi = true
@@ -73,11 +53,5 @@ github_repository = "duckinator/kulo"
 strip_zipapp_version = true
 
 [tool.bork.aliases]
-# Runs *only* pylint. (Not the actual tests.)
-lint = "pytest -k pylint --pylint --verbose"
-# Runs all tests.
+lint = "ruff check"
 test = "pytest --verbose"
-# Runs fast tests.
-test-fast = "pytest --verbose -m 'not slow'"
-# Runs slow tests.
-test-slow = "pytest --verbose -m slow"

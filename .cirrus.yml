@@ -47,24 +47,24 @@ success_task:
     - Lint
 
 # If kulo/version.py is modified on the main branch, make a release.
-#Release_task:
-#  only_if: "changesInclude('kulo/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
-#  depends_on: [CI success]
-#  env:
-#    TWINE_USERNAME: "__token__"
-#    TWINE_PASSWORD: ...
-#    BORK_GITHUB_TOKEN: ...
-#  container:
-#    image: python:3.10-slim
-#  install_script:
-#    - apt-get update
-#    - apt-get install -y git
-#    - pip install -U --upgrade-strategy eager pip 'setuptools>42'
-#    - pip3 install bork . .[test]
-#  build_script:
-#    - bork clean
-#    - bork build
-#  test_script:
-#    - bork run test
-#  release_script:
-#    - bork release
+Release_task:
+  only_if: "changesInclude('kulo/version.py') && $BRANCH == 'main' && $CIRRUS_CRON == ''"
+  depends_on: [CI success]
+  env:
+    TWINE_USERNAME: "__token__"
+    TWINE_PASSWORD: ENCRYPTED[95307379ea35b77178c4a371259e5c581058c8d1b2148066087556587ac2467457fab7b11ddcff730f769d5f35582390]
+    BORK_GITHUB_TOKEN: ENCRYPTED[1770aaa18bc894cbd477fbfce871322ba9acd5f51369fa36450f9b43d7dd04cdbed3da2e834043300fc979c7008828f0]
+  container:
+    image: python:3.10-slim
+  install_script:
+    - apt-get update
+    - apt-get install -y git
+    - pip install -U --upgrade-strategy eager pip 'setuptools>61'
+    - pip3 install bork . .[test]
+  build_script:
+    - bork clean
+    - bork build
+  test_script:
+    - bork run test
+  release_script:
+    - bork release
