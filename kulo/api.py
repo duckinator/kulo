@@ -15,7 +15,7 @@ CONFIG_FILE = CONFIG_PATH / CONFIG_FILE_NAME
 
 
 class KuloException(Exception):
-    """Exceptions raised by an kulo.api.Kulo instance."""
+    """Exceptions raised by a kulo.api.Kulo instance."""
     pass
 
 
