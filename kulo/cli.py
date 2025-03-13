@@ -153,6 +153,10 @@ def main(argv=None):
     if len(argv) > 1:
         command = args.pop(0)
 
+    if command not in COMMANDS:
+        command_names = "  " + "\n  ".join(COMMANDS.keys())
+        sys.exit(f"kulo: error: no such command: {command}\nExpected one of:\n{COMMAND_NAMES}")
+
     try:
         COMMANDS[command](*args)
     except api.KuloException as err:
