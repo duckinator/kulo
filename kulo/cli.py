@@ -155,7 +155,7 @@ def main(argv=None):
 
     if command not in COMMANDS:
         command_names = "  " + "\n  ".join(COMMANDS.keys())
-        sys.exit(f"kulo: error: no such command: {command}\nExpected one of:\n{COMMAND_NAMES}")
+        sys.exit(f"kulo: error: no such command: {command}\nExpected one of:\n{command_names}")
 
     try:
         COMMANDS[command](*args)
